@@ -11,7 +11,9 @@ Para este ejemplo utilizo como guía el tutorial practico esctrito por Miguel en
 
 ## Instalación
 
+En su ambiente virtual instalar Flask y Turbo Flask
+
 ```
-pip install flask turbo-flask
+(venv) $ pip install flask turbo-flask
 ```
 
