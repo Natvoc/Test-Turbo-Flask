@@ -1,7 +1,7 @@
 # Aplicación con Turbo Flask
 
 ## Descripción
-Esta es una aplicación de muestra para probar la extensión Turbo Flask,permite actualizar parte de la pagína web de manera asincrónica, sin necesidad de refrescar para visualizar los cambios.
+Esta es una aplicación de muestra para probar la extensión Turbo Flask que permite actualizar parte de la pagína web de manera asincrónica, sin necesidad de refrescar para visualizar los cambios.
 
 Se puede obtener más información de Turbo Flask en el Github del [Proyecto](https://github.com/miguelgrinberg/turbo-flask).
 
