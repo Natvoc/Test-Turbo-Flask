@@ -5,7 +5,7 @@ Esta es una aplicación de muestra para probar la extensión Turbo Flask ¡, la 
 
 Se puede obtener más información de Turbo Flask en el Github del [Proyecto](https://github.com/miguelgrinberg/turbo-flask).
 
-Importante destacar que el proyecto Turbo Flask es propiedad de [Miguel Grinberg](https://github.com/miguelgrinberg) utilizando la biblioteca [Turbo.js](https://github.com/hotwired/turbo).
+Importante destacar que Turbo Flask es un proyecto de [Miguel Grinberg](https://github.com/miguelgrinberg) intengrando la biblioteca [Turbo.js](https://github.com/hotwired/turbo) con Flask
 
 Para este ejemplo utilizo como guía el tutorial practico esctrito por Miguel en su [blog](https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask).
 
