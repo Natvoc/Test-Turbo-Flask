@@ -11,6 +11,7 @@ Para este ejemplo utilizo como guía el tutorial practico esctrito por Miguel en
 
 ## Instalación
 
-'''
+```
 pip install flask turbo-flask
-'''
+```
+
