@@ -13,7 +13,7 @@ def index():
 def page2():
     return render_template('page2.html')
 
-@app.context_prrocessor
+@app.context_processor
 def inject_load():
     if sys.platform.startswith('linux'):
         with open('/proc/loadavg', 'rt') as f:
@@ -21,3 +21,5 @@ def inject_load():
     else:
         load = [int(random.random() * 100) / 100 for _ in range(3)]
     return{'load1': load[0], 'load5': load[1], 'load15': load[2]}
+
+app.run(debug=True, port=8000)
