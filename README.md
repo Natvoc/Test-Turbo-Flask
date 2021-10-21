@@ -22,7 +22,9 @@ En su ambiente virtual instalar Flask 2 y Turbo Flask
 
 
 ### Templates
-Como podemos ver en el archivo 
+Dentro de nuestra habitual carpeta Templates de Flask tenemos 3 archivos html, index, page2 y base. 
+
+Utilizamos base como una buena practica de Flask ya que las otras páginas repiten esta estructura.
 
 
 ### aap.py
