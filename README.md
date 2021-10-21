@@ -20,7 +20,7 @@ En su ambiente virtual instalar Flask 2 y Turbo Flask
 
 ## Explicación
 
-Siguiendo el tutorial de Miguel, vamos a crear una web que nos brinde las cargas del CPU en los últimos 1,5 y 15 minutos, esto funciona para servidores Linux, en el mismo código de app.py también podemos encontrar un fracmeto que nos brinde datos aleatorios si el sistema operativo no es Linux:
+Siguiendo el tutorial de Miguel, vamos a crear una web que nos brinde las cargas del CPU en los últimos 1,5 y 15 minutos, esto funciona para servidores Linux, en el mismo código de app.py también podemos encontrar un fragmeto que nos brinde datos aleatorios si el sistema operativo no es Linux:
 
 ```python
 
@@ -31,7 +31,7 @@ def inject_load():
             load = f.read().split()[0:3]
     else:
         load = [int(random.random() * 100) / 100 for _ in range(3)]
-    return{'load1': load[0], 'load5': load5[1], 'load15': load[2]}
+    return{'load1': load[0], 'load5': load[1], 'load15': load[2]}
 
 ```
 
