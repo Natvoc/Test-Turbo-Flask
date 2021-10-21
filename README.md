@@ -9,4 +9,8 @@ Veo importante destacar que el proyecto Turbo Flask es propiedad de Miguel Grinb
 
 Para este ejemplo utilizo como guía el tutorial practico esctrito por Miguel en su blog https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask
 
-## 
+## Instalación
+
+'''
+pip install flask turbo-flask
+'''
