@@ -1,7 +1,7 @@
 # Aplicación con Turbo Flask
 
 ## Descripción
-Esta es una aplicación de muestra para probar la extensión Turbo Flask ¡, la cual permite actualización asincronica. Permite actualizar parte de la pagína web sin necesidad de refrescar.
+Esta es una aplicación de muestra para probar la extensión Turbo Flask,permite actualizar parte de la pagína web de manera asincrónica, sin necesidad de refrescar para visualizar los cambios.
 
 Se puede obtener más información de Turbo Flask en el Github del [Proyecto](https://github.com/miguelgrinberg/turbo-flask).
 
@@ -18,9 +18,15 @@ En su ambiente virtual instalar Flask 2 y Turbo Flask
 
 ```
 
-## Explicación
+## Detalles
 
-Siguiendo el tutorial de Miguel, vamos a crear una web que nos brinde las cargas del CPU en los últimos 1,5 y 15 minutos, esto funciona para servidores Linux, en el mismo código de app.py también podemos encontrar un fragmeto que nos brinde datos aleatorios si el sistema operativo no es Linux:
+
+### Templates
+Como podemos ver en el archivo 
+
+
+### aap.py
+Siguiendo el tutorial de Miguel vamos a crear una web que nos muestre las cargas del CPU en los últimos 1, 5 y 15 minutos, estos datos se actualizaran de manera automatica, la muestra de esta infomración de CPU está diseñada para servidores Linux, pero para continuar con el ejemplo se agrega un código que muestra numero de manera aleatoria si el sistema operativo no es Linux. 
 
 ```python
 
@@ -34,4 +40,8 @@ def inject_load():
     return{'load1': load[0], 'load5': load[1], 'load15': load[2]}
 
 ```
+
+
+
+
 
