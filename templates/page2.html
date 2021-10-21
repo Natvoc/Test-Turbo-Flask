@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<!-- saved from url=(0094)https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask -->
+<html class="js-focus-visible translated-ltr" data-js-focus-visible=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    
+    <title>
+    
+        Dynamically Update Your Flask Web Pages Using Turbo-Flask - miguelgrinberg.com
+    
+</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+	<meta name="description" content="miguelgrinberg.com">
+	<meta name="copyright" content="Copyright (c) 2012-2015 Miguel Grinberg">
+	<meta name="author" content="Miguel Grinberg">
+    
+    <meta name="keywords" content="hotwired, turbo, websocket, turbo-flask">
+    
+
+    
+    <!-- Bootstrap -->
+    <link href="./page2_files/bootstrap.min.css" rel="stylesheet">
+    <link href="./page2_files/prettify.css" type="text/css" rel="stylesheet">
+    <link href="./page2_files/colorbox.css" rel="stylesheet" type="text/css">
+    <link href="./page2_files/style_20200907.css" rel="stylesheet" type="text/css">
+
+    <link rel="shortcut icon" href="https://blog.miguelgrinberg.com/static/favicon.ico">
+	<link rel="alternate" type="application/rss+xml" href="https://blog.miguelgrinberg.com/feed" title="miguelgrinberg.com RSS feed">
+
+    <meta property="og:title" content="Dynamically Update Your Flask Web Pages Using Turbo-Flask">
+    <meta property="og:description" content="How can you update a part of a web page dynamically, without the user having to hit the refresh button on the browser?This is a question that is frequently asked on the Internet. If you have some…">
+    <meta property="og:image" content="http://blog.miguelgrinberg.com/static/cards/dynamically-update-your-flask-web-pages-using-turbo-flask.jpg">
+    <meta property="og:url" content="http://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask">
+    <meta name="twitter:title" content="Dynamically Update Your Flask Web Pages Using Turbo-Flask">
+    <meta name="twitter:description" content="How can you update a part of a web page dynamically, without the user having to hit the refresh button on the browser?This is a question that is frequently asked on the Internet. If you have some…">
+    <meta name="twitter:image" content="http://blog.miguelgrinberg.com/static/cards/dynamically-update-your-flask-web-pages-using-turbo-flask.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@miguelgrinberg">
+
+  <style type="text/css">.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q{display:block!important;border:1px solid #cdcfd2!important;background-color:#fff!important;color:#373a3d!important;width:100vw!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-24GeGuJgk9LrMLp7qVvlyz{background:#6a7e89!important;color:#fff!important;padding:10px!important;font-size:18px!important;font-family:sans-serif!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-KVjdulkCFfUZps29EbgAC{background:#f3f6f8!important;border-bottom:1px solid #cdcfd2!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-KVjdulkCFfUZps29EbgAC>*{margin-right:10px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1OeZ2PQ98oAp6Vc5mMc6V5{list-style:none!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-vCwYmWF_l83ScZBrGnRoi,.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1OeZ2PQ98oAp6Vc5mMc6V5{margin:0!important;padding:0!important;width:100%!important;display:block!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-vCwYmWF_l83ScZBrGnRoi:not(:last-child){border-bottom:1px solid #cdcfd2!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1XQZkb-FlHWABUp4_uShaZ{color:inherit!important;cursor:pointer!important;width:100%!important;display:inline-block!important;margin:10px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1XTzMvb2XKitWz0mFLlyyp{margin:5px!important;display:block!important;width:auto!important;white-space:pre!important;overflow-x:scroll!important;background:inherit!important;color:inherit!important;font-family:monospace}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1XTzMvb2XKitWz0mFLlyyp:not(.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-39QUvFFn5B7GMcqMQkOXZ3){display:none!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-295DY3nO0DbJWMsOqmjCli{background:#f5f5f5!important;color:#5a5a5a!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1aQZwu6CUzAf2zUcI7tg0Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-295DY3nO0DbJWMsOqmjCli{display:none!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-38EPFyKXMtoP12rPlmrHxs{background:#e6f7ff!important;color:#006097!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3W4ZnQjhoGfT1gTNcqRXdi .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-38EPFyKXMtoP12rPlmrHxs{display:none!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-HGYnfzlmgOZ-l7eANhQe_{background:#fff3ea!important;color:#993a00!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-24e52A11B1UIErbKHtBmqc .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-HGYnfzlmgOZ-l7eANhQe_{display:none!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-jji74ZzulHScD0OAD_G7h{background:#fef2f1!important;color:#b10823!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3npS60y-EvfF7G_lioSx2Q.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-28jAOA7cDee-95LvwGsOP- .IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-jji74ZzulHScD0OAD_G7h{display:none!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu{background-color:#0073b1!important;border:0!important;border-radius:2px!important;box-sizing:border-box!important;color:#fff!important;cursor:pointer!important;display:inline-block!important;font-family:-apple-system,system-ui,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Fira Sans,Ubuntu,Oxygen,Oxygen Sans,Cantarell,Droid Sans,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Lucida Grande,Helvetica,Arial,sans-serif!important;font-weight:600!important;overflow:hidden!important;outline-width:2px!important;position:relative!important;text-align:center!important;text-decoration:none!important;vertical-align:middle!important;white-space:nowrap!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu:disabled{cursor:not-allowed!important;opacity:.7!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu:not(:disabled):not(.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1zhzkayakwEXovVYUbq5Gy):hover{background-color:#006097!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu:not(:disabled):not(.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1zhzkayakwEXovVYUbq5Gy):active{background-color:#004b7c!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1zhzkayakwEXovVYUbq5Gy{background-color:#fff!important;color:#0073b1!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.3)!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1zhzkayakwEXovVYUbq5Gy:not(:disabled):hover{color:#006097!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1zhzkayakwEXovVYUbq5Gy:not(:disabled):active{color:#004b7c!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu>xdoor-icon{display:inline-block!important;height:100%!important;vertical-align:top!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu>xdoor-icon>svg{pointer-events:none!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-7inSbaAsvG5bf7w6lJTEr{font-size:10px!important;height:16px!important;line-height:16px!important;padding:0 6px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-7inSbaAsvG5bf7w6lJTEr>xdoor-icon{margin-left:-6px!important;margin-right:3px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-7inSbaAsvG5bf7w6lJTEr>xdoor-icon>svg{height:16px!important;width:16px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-7inSbaAsvG5bf7w6lJTEr.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-2lrEjt4SOTxqrYsv1piG4c>xdoor-icon{margin-right:-6px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu,.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3uCBSbQNVNf2QjqHe1rfb6{font-size:11px!important;height:20px!important;line-height:20px!important;padding:0 7px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3uCBSbQNVNf2QjqHe1rfb6>xdoor-icon,.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu>xdoor-icon{margin-left:-7px!important;margin-right:3.5px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3uCBSbQNVNf2QjqHe1rfb6>xdoor-icon>svg,.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu>xdoor-icon>svg{height:20px!important;width:20px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-3uCBSbQNVNf2QjqHe1rfb6.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-2lrEjt4SOTxqrYsv1piG4c>xdoor-icon,.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-2lrEjt4SOTxqrYsv1piG4c>xdoor-icon{margin-right:-7px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-21Smv9YG-5V6M6KP-5v2WG{font-size:14px!important;height:24px!important;line-height:24px!important;padding:0 12px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-21Smv9YG-5V6M6KP-5v2WG>xdoor-icon{margin-left:-12px!important;margin-right:6px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-21Smv9YG-5V6M6KP-5v2WG>xdoor-icon>svg{height:24px!important;width:24px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-21Smv9YG-5V6M6KP-5v2WG.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-2lrEjt4SOTxqrYsv1piG4c>xdoor-icon{margin-right:-12px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1TGdQUTLZdNG4R87OfAB-q{font-size:16px!important;height:32px!important;line-height:32px!important;padding:0 16px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1TGdQUTLZdNG4R87OfAB-q>xdoor-icon{margin-left:-16px!important;margin-right:8px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1TGdQUTLZdNG4R87OfAB-q>xdoor-icon>svg{height:32px!important;width:32px!important}.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1TGdQUTLZdNG4R87OfAB-q.IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-2lrEjt4SOTxqrYsv1piG4c>xdoor-icon{margin-right:-16px!important}</style><style type="text/css"></style><script charset="utf-8" src="./page2_files/button.0d6aa7fd095b2a9dd19cc66c7c2ed64b.js"></script><style type="text/css">
+@font-face {
+  font-weight: 400;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Book-cd7d2bcec649b1243839a15d5eb8f0a3.woff2') format('woff2');
+}
+
+@font-face {
+  font-weight: 500;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Medium-d74eac43c78bd5852478998ce63dceb3.woff2') format('woff2');
+}
+
+@font-face {
+  font-weight: 700;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Bold-83b8ceaf77f49c7cffa44107561909e4.woff2') format('woff2');
+}
+
+@font-face {
+  font-weight: 900;
+  font-style:  normal;
+  font-family: 'Circular-Loom';
+
+  src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Black-bf067ecb8aa777ceb6df7d72226febca.woff2') format('woff2');
+}</style><style type="text/css" data-fbcssmodules="css:fb.css.base css:fb.css.dialog css:fb.css.iframewidget css:fb.css.customer_chat_plugin_iframe">.fb_hidden{position:absolute;top:-10000px;z-index:10001}.fb_reposition{overflow:hidden;position:relative}.fb_invisible{display:none}.fb_reset{background:none;border:0;border-spacing:0;color:#000;cursor:auto;direction:ltr;font-family:"lucida grande", tahoma, verdana, arial, sans-serif;font-size:11px;font-style:normal;font-variant:normal;font-weight:normal;letter-spacing:normal;line-height:1;margin:0;overflow:visible;padding:0;text-align:left;text-decoration:none;text-indent:0;text-shadow:none;text-transform:none;visibility:visible;white-space:normal;word-spacing:normal}.fb_reset>div{overflow:hidden}@keyframes fb_transform{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}.fb_animate{animation:fb_transform .3s forwards}
+.fb_dialog{background:rgba(82, 82, 82, .7);position:absolute;top:-10000px;z-index:10001}.fb_dialog_advanced{border-radius:8px;padding:10px}.fb_dialog_content{background:#fff;color:#373737}.fb_dialog_close_icon{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 0 transparent;cursor:pointer;display:block;height:15px;position:absolute;right:18px;top:17px;width:15px}.fb_dialog_mobile .fb_dialog_close_icon{left:5px;right:auto;top:5px}.fb_dialog_padding{background-color:transparent;position:absolute;width:1px;z-index:-1}.fb_dialog_close_icon:hover{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -15px transparent}.fb_dialog_close_icon:active{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -30px transparent}.fb_dialog_iframe{line-height:0}.fb_dialog_content .dialog_title{background:#6d84b4;border:1px solid #365899;color:#fff;font-size:14px;font-weight:bold;margin:0}.fb_dialog_content .dialog_title>span{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yd/r/Cou7n-nqK52.gif) no-repeat 5px 50%;float:left;padding:5px 0 7px 26px}body.fb_hidden{height:100%;left:0;margin:0;overflow:visible;position:absolute;top:-10000px;transform:none;width:100%}.fb_dialog.fb_dialog_mobile.loading{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/ya/r/3rhSv5V8j3o.gif) white no-repeat 50% 50%;min-height:100%;min-width:100%;overflow:hidden;position:absolute;top:0;z-index:10001}.fb_dialog.fb_dialog_mobile.loading.centered{background:none;height:auto;min-height:initial;min-width:initial;width:auto}.fb_dialog.fb_dialog_mobile.loading.centered #fb_dialog_loader_spinner{width:100%}.fb_dialog.fb_dialog_mobile.loading.centered .fb_dialog_content{background:none}.loading.centered #fb_dialog_loader_close{clear:both;color:#fff;display:block;font-size:18px;padding-top:20px}#fb-root #fb_dialog_ipad_overlay{background:rgba(0, 0, 0, .4);bottom:0;left:0;min-height:100%;position:absolute;right:0;top:0;width:100%;z-index:10000}#fb-root #fb_dialog_ipad_overlay.hidden{display:none}.fb_dialog.fb_dialog_mobile.loading iframe{visibility:hidden}.fb_dialog_mobile .fb_dialog_iframe{position:sticky;top:0}.fb_dialog_content .dialog_header{background:linear-gradient(from(#738aba), to(#2c4987));border-bottom:1px solid;border-color:#043b87;box-shadow:white 0 1px 1px -1px inset;color:#fff;font:bold 14px Helvetica, sans-serif;text-overflow:ellipsis;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0;vertical-align:middle;white-space:nowrap}.fb_dialog_content .dialog_header table{height:43px;width:100%}.fb_dialog_content .dialog_header td.header_left{font-size:12px;padding-left:5px;vertical-align:middle;width:60px}.fb_dialog_content .dialog_header td.header_right{font-size:12px;padding-right:5px;vertical-align:middle;width:60px}.fb_dialog_content .touchable_button{background:linear-gradient(from(#4267B2), to(#2a4887));background-clip:padding-box;border:1px solid #29487d;border-radius:3px;display:inline-block;line-height:18px;margin-top:3px;max-width:85px;padding:4px 12px;position:relative}.fb_dialog_content .dialog_header .touchable_button input{background:none;border:none;color:#fff;font:bold 12px Helvetica, sans-serif;margin:2px -12px;padding:2px 6px 3px 6px;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog_content .dialog_header .header_center{color:#fff;font-size:16px;font-weight:bold;line-height:18px;text-align:center;vertical-align:middle}.fb_dialog_content .dialog_content{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/y9/r/jKEcVPZFk-2.gif) no-repeat 50% 50%;border:1px solid #4a4a4a;border-bottom:0;border-top:0;height:150px}.fb_dialog_content .dialog_footer{background:#f5f6f7;border:1px solid #4a4a4a;border-top-color:#ccc;height:40px}#fb_dialog_loader_close{float:left}.fb_dialog.fb_dialog_mobile .fb_dialog_close_icon{visibility:hidden}#fb_dialog_loader_spinner{animation:rotateSpinner 1.2s linear infinite;background-color:transparent;background-image:url(https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/t-wz8gw1xG1.png);background-position:50% 50%;background-repeat:no-repeat;height:24px;width:24px}@keyframes rotateSpinner{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.fb_iframe_widget{display:inline-block;position:relative}.fb_iframe_widget span{display:inline-block;position:relative;text-align:justify}.fb_iframe_widget iframe{position:absolute}.fb_iframe_widget_fluid_desktop,.fb_iframe_widget_fluid_desktop span,.fb_iframe_widget_fluid_desktop iframe{max-width:100%}.fb_iframe_widget_fluid_desktop iframe{min-width:220px;position:relative}.fb_iframe_widget_lift{z-index:1}.fb_iframe_widget_fluid{display:inline}.fb_iframe_widget_fluid span{width:100%}
+.fb_mpn_mobile_landing_page_slide_out{animation-duration:200ms;animation-name:fb_mpn_landing_page_slide_out;transition-timing-function:ease-in}.fb_mpn_mobile_landing_page_slide_out_from_left{animation-duration:200ms;animation-name:fb_mpn_landing_page_slide_out_from_left;transition-timing-function:ease-in}.fb_mpn_mobile_landing_page_slide_up{animation-duration:500ms;animation-name:fb_mpn_landing_page_slide_up;transition-timing-function:ease-in}.fb_mpn_mobile_bounce_in{animation-duration:300ms;animation-name:fb_mpn_bounce_in;transition-timing-function:ease-in}.fb_mpn_mobile_bounce_out{animation-duration:300ms;animation-name:fb_mpn_bounce_out;transition-timing-function:ease-in}.fb_mpn_mobile_bounce_out_v2{animation-duration:300ms;animation-name:fb_mpn_fade_out;transition-timing-function:ease-in}.fb_customer_chat_bounce_in_v2{animation-duration:300ms;animation-name:fb_bounce_in_v2;transition-timing-function:ease-in}.fb_customer_chat_bounce_in_from_left{animation-duration:300ms;animation-name:fb_bounce_in_from_left;transition-timing-function:ease-in}.fb_customer_chat_bounce_out_v2{animation-duration:300ms;animation-name:fb_bounce_out_v2;transition-timing-function:ease-in}.fb_customer_chat_bounce_out_from_left{animation-duration:300ms;animation-name:fb_bounce_out_from_left;transition-timing-function:ease-in}.fb_invisible_flow{display:inherit;height:0;overflow-x:hidden;width:0}@keyframes fb_mpn_landing_page_slide_out{0%{margin:0 12px;width:100% - 24px}60%{border-radius:18px}100%{border-radius:50%;margin:0 24px;width:60px}}@keyframes fb_mpn_landing_page_slide_out_from_left{0%{left:12px;width:100% - 24px}60%{border-radius:18px}100%{border-radius:50%;left:12px;width:60px}}@keyframes fb_mpn_landing_page_slide_up{0%{bottom:0;opacity:0}100%{bottom:24px;opacity:1}}@keyframes fb_mpn_bounce_in{0%{opacity:.5;top:100%}100%{opacity:1;top:0}}@keyframes fb_mpn_fade_out{0%{bottom:30px;opacity:1}100%{bottom:0;opacity:0}}@keyframes fb_mpn_bounce_out{0%{opacity:1;top:0}100%{opacity:.5;top:100%}}@keyframes fb_bounce_in_v2{0%{opacity:0;transform:scale(0, 0);transform-origin:bottom right}50%{transform:scale(1.03, 1.03);transform-origin:bottom right}100%{opacity:1;transform:scale(1, 1);transform-origin:bottom right}}@keyframes fb_bounce_in_from_left{0%{opacity:0;transform:scale(0, 0);transform-origin:bottom left}50%{transform:scale(1.03, 1.03);transform-origin:bottom left}100%{opacity:1;transform:scale(1, 1);transform-origin:bottom left}}@keyframes fb_bounce_out_v2{0%{opacity:1;transform:scale(1, 1);transform-origin:bottom right}100%{opacity:0;transform:scale(0, 0);transform-origin:bottom right}}@keyframes fb_bounce_out_from_left{0%{opacity:1;transform:scale(1, 1);transform-origin:bottom left}100%{opacity:0;transform:scale(0, 0);transform-origin:bottom left}}@keyframes slideInFromBottom{0%{opacity:.1;transform:translateY(100%)}100%{opacity:1;transform:translateY(0)}}@keyframes slideInFromBottomDelay{0%{opacity:0;transform:translateY(100%)}97%{opacity:0;transform:translateY(100%)}100%{opacity:1;transform:translateY(0)}}</style><link type="text/css" rel="stylesheet" charset="UTF-8" href="./page2_files/translateelement.css"></head>
+  <body cz-shortcut-listen="true">
+    
+    <!-- facebook sdk -->
+    <div id="fb-root" class=" fb_reset"><div style="position: absolute; top: -10000px; width: 0px; height: 0px;"><div></div></div></div>
+    <script src="./page2_files/cb=gapi.loaded_1" async=""></script><script src="./page2_files/cb=gapi(1).loaded_0" async=""></script><script type="text/javascript" async="" src="./page2_files/recaptcha__es_419.js" crossorigin="anonymous" integrity="sha384-ImFTI1k/rfB8hSV2HddxDYgfF2n/MlTJ9PlxWTPHD23krKOQ+vfyc7vWXvhVhKkg"></script><script src="./page2_files/all.js" async="" crossorigin="anonymous"></script><script type="text/javascript" async="" src="./page2_files/ga.js"></script><script id="twitter-wjs" src="./page2_files/widgets.js"></script><script id="facebook-jssdk" src="./page2_files/all(1).js"></script><script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+    <!-- google plus sdk -->
+    <script src="./page2_files/platform.js" async="" defer="" gapi_processed="true"></script>
+    <!-- twitter sdk -->
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    <!-- linkedin sdk -->
+    <script src="./page2_files/in.js" type="text/javascript" defer=""></script>
+
+    
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="https://blog.miguelgrinberg.com/index">miguelgrinberg.com</a>
+                </div>
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="https://blog.miguelgrinberg.com/index">Home</a></li>
+                        <li><a href="https://courses.miguelgrinberg.com/">My Courses</a></li>
+                        <li><a href="https://blog.miguelgrinberg.com/post/about-me">About Me</a></li>
+                        
+                        <li><a style="top: -1px;" href="https://blog.miguelgrinberg.com/post/hire-me"><span style="letter-spacing: 1px; font-size: 110%;">Hire me!</span></a></li>
+                        
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <p class="navbar-text" style="margin-top: 10px; margin-bottom: 0px;">
+                                <a type="application/rss+xml" href="https://blog.miguelgrinberg.com/feed"><img src="./page2_files/rss.png" alt="RSS Feed" title="RSS Feed"></a>
+                                <a href="https://www.facebook.com/miguelgrinbergblog"><img src="./page2_files/facebook.png" alt="Facebook" title="Facebook"></a>
+                                <a href="https://youtube.com/miguelgrinberg"><img src="./page2_files/youtube.png" alt="YouTube" title="YouTube"></a>
+                                <a href="http://www.linkedin.com/in/miguelgrinberg"><img src="./page2_files/linkedin.png" alt="LinkedIn" title="LinkedIn"></a>
+                                <a href="http://github.com/miguelgrinberg"><img src="./page2_files/github.png" alt="GitHub" title="GitHub"></a>
+                                <a href="https://twitter.com/miguelgrinberg"><img src="./page2_files/twitter.png" alt="Twitter" title="Twitter"></a>
+                                <a href="https://patreon.com/miguelgrinberg"><img src="./page2_files/patreon.png" alt="Patreon" title="Patreon"></a>
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+    </nav>
+
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div id="main">
+                    
+                    
+                    
+                    
+                    
+
+<div class="post">
+
+<p class="date"><span class="" data-timestamp="2021-05-17T15:01:41Z" data-format="format(&#39;LL&#39;)" data-refresh="0">May 17 2021</span></p>
+<h1 class="post-title"><a href="https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask">Dynamically Update Your Flask Web Pages Using Turbo-Flask</a></h1>
+<div class="posted">Posted by <span class="label label-danger"><a href="https://blog.miguelgrinberg.com/author/Miguel%20Grinberg">Miguel Grinberg</a></span> under <span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Flask">Flask</a></span>, <span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Programming">Programming</a></span>, <span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Python">Python</a></span>. </div>
+<div class="social-bar">
+    <table>
+        <tbody><tr>
+            <td><div class="social-box" style="padding-top: 8px;"><iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" class="twitter-share-button twitter-share-button-rendered twitter-tweet-button" style="position: static; visibility: visible; width: 73px; height: 20px;" title="Twitter Tweet Button" src="./page2_files/tweet_button.a53eecb4584348a2ad32ec2ae21f6eae.en.html" data-url="http://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask"></iframe></div></td>
+            <td><div class="social-box" style="padding-left: 6px;"><div class="fb-like fb_iframe_widget" data-href="http://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask" data-send="false" data-layout="button" data-width="450" data-show-faces="false" data-font="verdana" fb-xfbml-state="rendered" fb-iframe-plugin-query="app_id=&amp;container_width=0&amp;font=verdana&amp;href=http%3A%2F%2Fblog.miguelgrinberg.com%2Fpost%2Fdynamically-update-your-flask-web-pages-using-turbo-flask&amp;layout=button&amp;locale=en_US&amp;sdk=joey&amp;send=false&amp;show_faces=false&amp;width=450"><span style="vertical-align: bottom; width: 60px; height: 20px;"><iframe name="f2cf23b8f65b238" width="450px" height="1000px" data-testid="fb:like Facebook Social Plugin" title="fb:like Facebook Social Plugin" frameborder="0" allowtransparency="true" allowfullscreen="true" scrolling="no" allow="encrypted-media" src="./page2_files/like.html" style="border: none; visibility: visible; width: 60px; height: 20px;" class=""></iframe></span></div></div></td>
+            <td><div class="social-box" style="padding-top: 8px;"><div id="___plusone_0" style="position: absolute; width: 450px; left: -10000px;"><iframe ng-non-bindable="" frameborder="0" hspace="0" marginheight="0" marginwidth="0" scrolling="no" style="position:absolute;top:-10000px;width:450px;margin:0px;border-style:none" tabindex="0" vspace="0" width="100%" id="I0_1634833828651" name="I0_1634833828651" src="./page2_files/fastbutton.html" data-gapiattached="true"></iframe></div><div class="g-plusone" data-size="medium" data-annotation="none" data-href="http://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask" data-gapiscan="true" data-onload="true" data-gapistub="true"></div></div></td>
+            <td><div class="social-box" style="padding-top: 8px;"><span class="IN-widget" data-lnkd-debug="&lt;script type=&quot;IN/Share+init&quot; data-url=&quot;http://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask&quot;&gt;&lt;/script&gt;" style="display: inline-block; line-height: 1; vertical-align: bottom; padding: 0px; margin: 0px; text-indent: 0px; text-align: center;"><span style="padding: 0px !important; margin: 0px !important; text-indent: 0px !important; display: inline-block !important; vertical-align: bottom !important; font-size: 1px !important;"><button class="IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu"><xdoor-icon aria-hidden="true"><svg viewBox="0 0 24 24" width="24px" height="24px" x="0" y="0" preserveAspectRatio="xMinYMin meet">
+      <g style="fill: currentColor">
+        <rect x="-0.003" style="fill:none;" width="24" height="24"></rect>
+        <path style="" d="M20,2h-16c-1.1,0-2,0.9-2,2v16c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2zM8,19h-3v-9h3V19zM6.5,8.8C5.5,8.8,4.7,8,4.7,7s0.8-1.8,1.8-1.8S8.3,6,8.3,7S7.5,8.8,6.5,8.8zM19,19h-3v-4c0-1.4-0.6-2-1.5-2c-1.1,0-1.5,0.8-1.5,2.2V19h-3v-9h2.9v1.1c0.5-0.7,1.4-1.3,2.6-1.3c2.3,0,3.5,1.1,3.5,3.7V19z"></path>
+      </g>
+    </svg></xdoor-icon>Share</button></span></span></div></td>
+        </tr>
+    </tbody></table>
+</div>
+<div class="post_body"><p>How can you update a part of a web page dynamically, without the user having to hit the refresh button on the browser?</p>
+<p>This is a question that is frequently asked on the Internet. If you have some knowledge of JavaScript this is relatively easy to do, more so if you use a front end web framework such as React or Vue. But what if you have a standard web application written in Flask and Jinja templates?</p>
+<p>In this article I'm going to introduce you to my <a href="https://github.com/miguelgrinberg/turbo-flask">Turbo-Flask</a> extension, which will allow your Flask application to easily push asynchronous page updates to the browser, without having to write any JavaScript code. In the screenshot below, note how the CPU load numbers update without the user doing anything.</p>
+<p></p><center><img alt="Turbo-Flask Demo Application" src="./page2_files/turbo-flask-demo.gif"></center><p></p>
+<h2>What is Turbo-Flask?</h2>
+<p>Turbo-Flask is a Flask extension that integrates the <a href="https://github.com/hotwired/turbo">turbo.js</a> JavaScript library with your Flask application.</p>
+<p>This library bundles a number of different features, all with the goal of making server generated web pages behave more like single-page applications, but without requiring the application to write any front end code in JavaScript. Here is a list of the four modules included in turbo.js:</p>
+<ul>
+<li><a href="https://turbo.hotwire.dev/handbook/drive">Turbo Drive</a>: to accelerate page navigation by transparently updating pages in the background, without letting the browser ever do a full page reload.</li>
+<li><a href="https://turbo.hotwire.dev/handbook/frames">Turbo Frames</a>: to only update predefined parts of the page when the user clicks on a link or submits a form.</li>
+<li><a href="https://turbo.hotwire.dev/handbook/streams">Turbo Streams</a>: to let the server-side application update parts of the page by submitting HTML fragments to the client.</li>
+<li><a href="https://turbo.hotwire.dev/handbook/native">Turbo Native</a>: to wrap your application as a native iOS or Android app. This section of turbo.js is out of scope for this article and I have very little experience with it, so I will not discuss it at all.</li>
+</ul>
+<p>If you are interested in the Turbo Drive, and Frames features, I suggest you review the turbo.js documentation links above, as these do not require a Flask integration and can be used directly in your Jinja templates.</p>
+<p>In this article I want to concentrate on the Turbo Streams feature, which is, in my opinion, the most interesting of the set.</p>
+<h2>An Example Application</h2>
+<p>This is going to be a hands-on tutorial, so let's create a short Flask application to which we can later add Turbo-Flask. If you are too lazy to type or copy/paste the code examples below, you can find the complete code for this article in the <a href="https://github.com/miguelgrinberg/turbo-flask/tree/main/examples/load">Turbo-Flask repository on GitHub</a>.</p>
+<p><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Para comenzar, cree un directorio en el que trabajará en esta aplicación. </font><font style="vertical-align: inherit;">También es posible que desee crear un entorno virtual y activarlo. </font><font style="vertical-align: inherit;">Una vez que esté listo, instale Flask y Turbo-Flask:</font></font></p>
+<pre class="prettyprint"><code class="bash"><span class="pun">(</span><span class="pln">venv</span><span class="pun">)</span><span class="pln"> $ pip install flask turbo</span><span class="pun">-</span><span class="pln">flask</span></code></pre>
+
+<p><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Nota: El paquete Turbo-Flask requiere Flask versión 2.</font></font></p>
+<h3><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">La aplicación Flask</font></font></h3>
+<p><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">El código de la aplicación base se muestra a continuación. </font></font><em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Cópialo en</font></font></em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> un archivo llamado </font><em><font style="vertical-align: inherit;">app.py</font></em><font style="vertical-align: inherit;"> :</font></font></p>
+<pre class="prettyprint"><code class="python"><span class="kwd">import</span><span class="pln"> random
+</span><span class="kwd">import</span><span class="pln"> re
+</span><span class="kwd">import</span><span class="pln"> sys
+</span><span class="kwd">from</span><span class="pln"> flask </span><span class="kwd">import</span><span class="pln"> </span><span class="typ">Flask</span><span class="pun">,</span><span class="pln"> render_template
+
+app </span><span class="pun">=</span><span class="pln"> </span><span class="typ">Flask</span><span class="pun">(</span><span class="pln">__name__</span><span class="pun">)</span><span class="pln">
+
+</span><span class="lit">@app</span><span class="pun">.</span><span class="pln">route</span><span class="pun">(</span><span class="str">'/'</span><span class="pun">)</span><span class="pln">
+</span><span class="kwd">def</span><span class="pln"> index</span><span class="pun">():</span><span class="pln">
+    </span><span class="kwd">return</span><span class="pln"> render_template</span><span class="pun">(</span><span class="str">'index.html'</span><span class="pun">)</span><span class="pln">
+
+</span><span class="lit">@app</span><span class="pun">.</span><span class="pln">route</span><span class="pun">(</span><span class="str">'/page2'</span><span class="pun">)</span><span class="pln">
+</span><span class="kwd">def</span><span class="pln"> page2</span><span class="pun">():</span><span class="pln">
+    </span><span class="kwd">return</span><span class="pln"> render_template</span><span class="pun">(</span><span class="str">'page2.html'</span><span class="pun">)</span><span class="pln">
+
+</span><span class="lit">@app</span><span class="pun">.</span><span class="pln">context_processor
+</span><span class="kwd">def</span><span class="pln"> inject_load</span><span class="pun">():</span><span class="pln">
+    </span><span class="kwd">if</span><span class="pln"> sys</span><span class="pun">.</span><span class="pln">platform</span><span class="pun">.</span><span class="pln">startswith</span><span class="pun">(</span><span class="str">'linux'</span><span class="pun">):</span><span class="pln"> 
+        </span><span class="kwd">with</span><span class="pln"> open</span><span class="pun">(</span><span class="str">'/proc/loadavg'</span><span class="pun">,</span><span class="pln"> </span><span class="str">'rt'</span><span class="pun">)</span><span class="pln"> </span><span class="kwd">as</span><span class="pln"> f</span><span class="pun">:</span><span class="pln">
+            load </span><span class="pun">=</span><span class="pln"> f</span><span class="pun">.</span><span class="pln">read</span><span class="pun">().</span><span class="pln">split</span><span class="pun">()[</span><span class="lit">0</span><span class="pun">:</span><span class="lit">3</span><span class="pun">]</span><span class="pln">
+    </span><span class="kwd">else</span><span class="pun">:</span><span class="pln">
+        load </span><span class="pun">=</span><span class="pln"> </span><span class="pun">[</span><span class="kwd">int</span><span class="pun">(</span><span class="pln">random</span><span class="pun">.</span><span class="pln">random</span><span class="pun">()</span><span class="pln"> </span><span class="pun">*</span><span class="pln"> </span><span class="lit">100</span><span class="pun">)</span><span class="pln"> </span><span class="pun">/</span><span class="pln"> </span><span class="lit">100</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> _ </span><span class="kwd">in</span><span class="pln"> range</span><span class="pun">(</span><span class="lit">3</span><span class="pun">)]</span><span class="pln">
+    </span><span class="kwd">return</span><span class="pln"> </span><span class="pun">{</span><span class="str">'load1'</span><span class="pun">:</span><span class="pln"> load</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> </span><span class="str">'load5'</span><span class="pun">:</span><span class="pln"> load</span><span class="pun">[</span><span class="lit">1</span><span class="pun">],</span><span class="pln"> </span><span class="str">'load15'</span><span class="pun">:</span><span class="pln"> load</span><span class="pun">[</span><span class="lit">2</span><span class="pun">]}</span></code></pre>
+
+<p><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">La aplicación define dos rutas en las </font><font style="vertical-align: inherit;">URL </font></font><em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">/</font></font></em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> y </font></font><em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">/ page2</font></font></em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> . </font><font style="vertical-align: inherit;">Ambas páginas se implementan con plantillas Jinja denominadas </font></font><em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">index.html</font></font></em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> y </font></font><em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">page2.html</font></font></em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> .</font></font></p>
+<p><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Hasta ahora esto no muestra nada fuera de lo común. </font><font style="vertical-align: inherit;">Es posible que no esté familiarizado con la última parte de la aplicación. </font><font style="vertical-align: inherit;">La </font></font><code>inject_load()</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">función está decorada con el </font></font><code>@app.context_processor</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">decorador de Flask, que permite que la aplicación agregue símbolos al visor Jinja. </font><font style="vertical-align: inherit;">El diccionario que devuelve esta función contiene tres teclas, </font></font><code>load1</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">, </font></font><code>load5</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">y </font></font><code>load15</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">, lo que Frasco pondrá a disposición de todas las plantillas de Jinja prestados con la </font></font><code>render_template()</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">función.</font></font></p>
+<p><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Los tres números de carga son una métrica estándar que se puede obtener en sistemas basados ​​en Unix. </font><font style="vertical-align: inherit;">Estos números le dan la carga de CPU del sistema en los últimos 1, 5 y 15 minutos. </font><font style="vertical-align: inherit;">El método que utilizo para obtener estos números es específico para servidores Linux:</font></font></p>
+<pre class="prettyprint"><code class="python"><span class="pln">        </span><span class="kwd">with</span><span class="pln"> open</span><span class="pun">(</span><span class="str">'/proc/loadavg'</span><span class="pun">,</span><span class="pln"> </span><span class="str">'rt'</span><span class="pun">)</span><span class="pln"> </span><span class="kwd">as</span><span class="pln"> f</span><span class="pun">:</span><span class="pln">
+            load </span><span class="pun">=</span><span class="pln"> f</span><span class="pun">.</span><span class="pln">read</span><span class="pun">().</span><span class="pln">split</span><span class="pun">()[</span><span class="lit">0</span><span class="pun">:</span><span class="lit">3</span><span class="pun">]</span></code></pre>
+
+<p><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Para asegurarse de que puede utilizar esta aplicación de ejemplo en otros sistemas operativos, la función proporciona una implementación alternativa que solo genera tres números de carga falsos:</font></font></p>
+<pre class="prettyprint"><code class="python"><span class="pln">        load </span><span class="pun">=</span><span class="pln"> </span><span class="pun">[</span><span class="kwd">int</span><span class="pun">(</span><span class="pln">random</span><span class="pun">.</span><span class="pln">random</span><span class="pun">()</span><span class="pln"> </span><span class="pun">*</span><span class="pln"> </span><span class="lit">100</span><span class="pun">)</span><span class="pln"> </span><span class="pun">/</span><span class="pln"> </span><span class="lit">100</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> _ </span><span class="kwd">in</span><span class="pln"> range</span><span class="pun">(</span><span class="lit">3</span><span class="pun">)]</span></code></pre>
+
+<h3><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">La plantilla base</font></font></h3>
+<p><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Dado que la aplicación tendrá dos páginas con la misma estructura en gran parte, es una buena idea extraer el diseño base en una plantilla base de la que ambas páginas puedan heredar. </font><font style="vertical-align: inherit;">Aquí está la </font><font style="vertical-align: inherit;">plantilla </font></font><em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">base.html</font></font></em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> , que deberá almacenar en un </font><font style="vertical-align: inherit;">subdirectorio de </font></font><em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">plantillas</font></font></em><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> :</font></font></p>
+<pre class="prettyprint"><code class="html"><span class="dec">&lt;!doctype html&gt;</span><span class="pln">
+</span><span class="tag">&lt;html&gt;</span><span class="pln">
+  </span><span class="tag">&lt;head&gt;</span><span class="pln">
+    </span><span class="tag">&lt;title&gt;</span><span class="pln">Turbo-Flask Streams Demo</span><span class="tag">&lt;/title&gt;</span><span class="pln">
+    </span><span class="tag">&lt;style&gt;</span><span class="pln">
+      </span><span class="pun">.</span><span class="pln">load </span><span class="pun">{</span><span class="pln">
+        </span><span class="kwd">float</span><span class="pun">:</span><span class="pln"> right</span><span class="pun">;</span><span class="pln">
+        width</span><span class="pun">:</span><span class="pln"> </span><span class="lit">300px</span><span class="pun">;</span><span class="pln">
+        border</span><span class="pun">:</span><span class="pln"> </span><span class="lit">1px</span><span class="pln"> solid black</span><span class="pun">;</span><span class="pln">
+        margin</span><span class="pun">-</span><span class="pln">left</span><span class="pun">:</span><span class="pln"> </span><span class="lit">10px</span><span class="pun">;</span><span class="pln">
+        margin</span><span class="pun">-</span><span class="pln">bottom</span><span class="pun">:</span><span class="pln"> </span><span class="lit">10px</span><span class="pun">;</span><span class="pln">
+        padding</span><span class="pun">:</span><span class="pln"> </span><span class="lit">10px</span><span class="pun">;</span><span class="pln">
+      </span><span class="pun">}</span><span class="pln">
+      </span><span class="pun">.</span><span class="pln">load th</span><span class="pun">,</span><span class="pln"> </span><span class="pun">.</span><span class="pln">load td </span><span class="pun">{</span><span class="pln">
+        padding</span><span class="pun">:</span><span class="pln"> </span><span class="lit">6px</span><span class="pun">;</span><span class="pln">
+        text</span><span class="pun">-</span><span class="pln">align</span><span class="pun">:</span><span class="pln"> center</span><span class="pun">;</span><span class="pln">
+      </span><span class="pun">}</span><span class="pln">
+    </span><span class="tag">&lt;/style&gt;</span><span class="pln">
+  </span><span class="tag">&lt;/head&gt;</span><span class="pln">
+  </span><span class="tag">&lt;body&gt;</span><span class="pln">
+    {% include "loadavg.html" %}
+    {% block content %}{% endblock %}
+  </span><span class="tag">&lt;/body&gt;</span><span class="pln">
+</span><span class="tag">&lt;/html&gt;</span></code></pre>
+
+<p><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">La plantilla base define algunos estilos que crean el diseño de la caja con las métricas de promedio de carga como se ve en la captura de pantalla al comienzo del artículo. </font><font style="vertical-align: inherit;">En particular, observe cómo el </font></font><code>float: right</code><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">atributo CSS hará que esta parte de la página aparezca en la esquina superior derecha de la página, envuelta con contenido.</font></font></p>
+<p>The body of the template includes the <em>loadavg.html</em> template, which implements this box, and then defines a <code>content</code> Jinja block that the derived pages can use to provide their page bodies.</p>
+<h3>The Load Averages Template</h3>
+<p>The template referenced by the base template implementes the box that shows the three load average values as a table. Save the following page in the <em>templates</em> directory with the name <em>loadavg.html</em>:</p>
+<pre class="prettyprint"><code class="html"><span class="tag">&lt;div</span><span class="pln"> </span><span class="atn">id</span><span class="pun">=</span><span class="atv">"load"</span><span class="pln"> </span><span class="atn">class</span><span class="pun">=</span><span class="atv">"load"</span><span class="tag">&gt;</span><span class="pln">
+  </span><span class="tag">&lt;table&gt;</span><span class="pln">
+    </span><span class="tag">&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;th&gt;</span><span class="pln">1 min</span><span class="tag">&lt;/th&gt;&lt;th&gt;</span><span class="pln">5 min</span><span class="tag">&lt;/th&gt;&lt;th&gt;</span><span class="pln">15 min</span><span class="tag">&lt;/th&gt;&lt;/tr&gt;</span><span class="pln">
+    </span><span class="tag">&lt;tr&gt;&lt;th&gt;</span><span class="pln">Load averages:</span><span class="tag">&lt;/th&gt;&lt;td&gt;</span><span class="pln">{{ load1 }}</span><span class="tag">&lt;/td&gt;&lt;td&gt;</span><span class="pln">{{ load5 }}</span><span class="tag">&lt;/td&gt;&lt;td&gt;</span><span class="pln">{{ load15 }}</span><span class="tag">&lt;/td&gt;&lt;/tr&gt;</span><span class="pln">
+  </span><span class="tag">&lt;/table&gt;</span><span class="pln">
+</span><span class="tag">&lt;/div&gt;</span></code></pre>
+
+<p>Here notice the <code>load1</code>, <code>load5</code> and <code>load15</code> variables, which were the ones injected into the Jinja context by the application.</p>
+<h3>The Page Templates</h3>
+<p>To complete the base version of the application we need to create the two templates that are rendered by the <code>index()</code> and <code>page2()</code> routes. Since the content of the pages does not really matter much, I created a placeholder page with some dummy text in them, plus a link to the other page. Below you can see the <em>index.html</em> and <em>page2.html</em> templates, which you should copy to the <em>templates</em> sub-directory:</p>
+<pre class="prettyprint"><code class="html"><span class="pun">{%</span><span class="pln"> </span><span class="kwd">extends</span><span class="pln"> </span><span class="str">"base.html"</span><span class="pln"> </span><span class="pun">%}</span><span class="pln">
+
+</span><span class="pun">{%</span><span class="pln"> block content </span><span class="pun">%}</span><span class="pln">
+</span><span class="str">&lt;h1&gt;</span><span class="typ">Main</span><span class="pln"> </span><span class="typ">Page</span><span class="pun">&lt;</span><span class="str">/h1&gt;
+&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&lt;/</span><span class="pln">p</span><span class="pun">&gt;</span><span class="pln">
+</span><span class="str">&lt;p&gt;</span><span class="typ">You</span><span class="pln"> can visit </span><span class="pun">&lt;</span><span class="pln">a href</span><span class="pun">=</span><span class="str">"/page2"</span><span class="pun">&gt;</span><span class="typ">Page</span><span class="pln"> </span><span class="lit">2</span><span class="pun">&lt;</span><span class="str">/a&gt;.&lt;/</span><span class="pln">p</span><span class="pun">&gt;</span><span class="pln">
+</span><span class="pun">{%</span><span class="pln"> endblock </span><span class="pun">%}</span></code></pre>
+
+<pre class="prettyprint"><code class="html"><span class="pun">{%</span><span class="pln"> </span><span class="kwd">extends</span><span class="pln"> </span><span class="str">"base.html"</span><span class="pln"> </span><span class="pun">%}</span><span class="pln">
+
+</span><span class="pun">{%</span><span class="pln"> block content </span><span class="pun">%}</span><span class="pln">
+</span><span class="str">&lt;h1&gt;</span><span class="typ">Page</span><span class="pln"> </span><span class="lit">2</span><span class="pun">&lt;</span><span class="str">/h1&gt;
+&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&lt;/</span><span class="pln">p</span><span class="pun">&gt;</span><span class="pln">
+</span><span class="str">&lt;p&gt;</span><span class="typ">Go</span><span class="pln"> back to the </span><span class="pun">&lt;</span><span class="pln">a href</span><span class="pun">=</span><span class="str">"/"</span><span class="pun">&gt;</span><span class="pln">home page</span><span class="pun">&lt;</span><span class="str">/a&gt;.&lt;/</span><span class="pln">p</span><span class="pun">&gt;</span><span class="pln">
+</span><span class="pun">{%</span><span class="pln"> endblock </span><span class="pun">%}</span></code></pre>
+
+<p>Both templates inherit from the <em>base.html</em> template created earlier, which means that they are going to have the box with the CPU metrics automatically added in the top-right corner of the page.</p>
+<h3>Running the Application</h3>
+<p>The application is now complete. You can start it with the <code>flask run</code> command:</p>
+<pre class="prettyprint"><code class="bash"><span class="pun">(</span><span class="pln">venv</span><span class="pun">)</span><span class="pln"> $ flask run</span></code></pre>
+
+<p>Open a web browser and type <em>http://localhost:5000</em> in the address bar. You should now have a two-page application that shows (static) CPU metrics in the top-right corner of the page.</p>
+<p></p><center><img alt="Turbo-Flask Static Demo" src="./page2_files/turbo-flask-demo.png"></center><p></p>
+<h2>Configuring Turbo-Flask</h2>
+<p>The goal is to have the CPU load values update every five seconds without the user having to refresh the page. The first step in achieving this goal is to add the Turbo-Flask extension to the application.</p>
+<p>Turbo-Flask is initialized like most other Flask extensions. In the imports section of <em>app.py</em>, import the <code>Turbo</code> class:</p>
+<pre class="prettyprint"><code class="python"><span class="kwd">from</span><span class="pln"> turbo_flask </span><span class="kwd">import</span><span class="pln"> </span><span class="typ">Turbo</span></code></pre>
+
+<p>Right after the Flask application instance is initialized, create an instance of this class and initialized it by passing the Flask application instance:</p>
+<pre class="prettyprint"><code class="python"><span class="pln">turbo </span><span class="pun">=</span><span class="pln"> </span><span class="typ">Turbo</span><span class="pun">(</span><span class="pln">app</span><span class="pun">)</span></code></pre>
+
+<p>In the <em>base.html</em> template, add <code>{{ turbo() }}</code> inside the <code>&lt;head&gt;</code> element:</p>
+<pre class="prettyprint"><code class="html"><span class="dec">&lt;!doctype html&gt;</span><span class="pln">
+</span><span class="tag">&lt;html&gt;</span><span class="pln">
+  </span><span class="tag">&lt;head&gt;</span><span class="pln">
+    ...
+    {{ turbo() }}
+  </span><span class="tag">&lt;/head&gt;</span><span class="pln">
+</span><span class="tag">&lt;/html&gt;</span></code></pre>
+
+<p>The call to the <code>turbo()</code> function in the base template initializes the turbo.js library. While Turbo Drive and Turbo Frames are not the focus of this article, you should know that this is all that is needed from the Python side to enable these modules in your application.</p>
+<h2>Adding a Background Updater Thread</h2>
+<p>And now we reach the most interesting part of this tutorial. We want the application to push updates to the CPU load numbers every 5 seconds, so we will need a background thread that can issue these updates to the connected clients.</p>
+<p>A convenient way to start this background thread is to do it as a <code>before_first_request</code> handler, as this ensures that the thread will be up and running as soon as the first client connects. The changes to start a background thread on first request are shown below. Add these changes to <em>app.py</em>:</p>
+<pre class="prettyprint"><code class="python"><span class="kwd">import</span><span class="pln"> threading
+
+</span><span class="com"># ...</span><span class="pln">
+
+</span><span class="lit">@app</span><span class="pun">.</span><span class="pln">before_first_request
+</span><span class="kwd">def</span><span class="pln"> before_first_request</span><span class="pun">():</span><span class="pln">
+    threading</span><span class="pun">.</span><span class="typ">Thread</span><span class="pun">(</span><span class="pln">target</span><span class="pun">=</span><span class="pln">update_load</span><span class="pun">).</span><span class="pln">start</span><span class="pun">()</span></code></pre>
+
+<p>The <code>update_load()</code> function is where the page updates are going to be generated. The function is going to have a loop, and in each loop iteration an update will be pushed to all connected clients. Below you can see the implementation of this function, which you should also add to <em>app.py</em>:</p>
+<pre class="prettyprint"><code class="python"><span class="kwd">import</span><span class="pln"> time
+
+</span><span class="com"># ...</span><span class="pln">
+
+</span><span class="kwd">def</span><span class="pln"> update_load</span><span class="pun">():</span><span class="pln">
+    </span><span class="kwd">with</span><span class="pln"> app</span><span class="pun">.</span><span class="pln">app_context</span><span class="pun">():</span><span class="pln">
+        </span><span class="kwd">while</span><span class="pln"> </span><span class="kwd">True</span><span class="pun">:</span><span class="pln">
+            time</span><span class="pun">.</span><span class="pln">sleep</span><span class="pun">(</span><span class="lit">5</span><span class="pun">)</span><span class="pln">
+            turbo</span><span class="pun">.</span><span class="pln">push</span><span class="pun">(</span><span class="pln">turbo</span><span class="pun">.</span><span class="pln">replace</span><span class="pun">(</span><span class="pln">render_template</span><span class="pun">(</span><span class="str">'loadavg.html'</span><span class="pun">),</span><span class="pln"> </span><span class="str">'load'</span><span class="pun">))</span></code></pre>
+
+<p>This function is going to call the <code>render_template()</code> function from Flask to generate the updated CPU metrics fragment, so it needs to have an application context. The loop includes a 5 second sleep that sets the frequency of the updates.</p>
+<p>An update is sent to all clients with the <code>turbo.push()</code> method. This method has only one required argument, the stream to push to clients. A stream is composed of one or more page update operations. There are 5 supported operations that can be used with Turbo Streams:</p>
+<ul>
+<li>Append, or <code>turbo.append(content, target)</code>: add <code>content</code> at the end of <code>target</code></li>
+<li>Prepend, or <code>turbo.prepend(content, target)</code>: add <code>content</code> at the start of <code>target</code></li>
+<li>Replace, or <code>turbo.replace(content, target)</code>: replace <code>target</code> with <code>content</code></li>
+<li>Update, or <code>turbo.update(content, target)</code>: replace the contents of <code>target</code> with <code>content</code></li>
+<li>Remove, or <code>turbo.remove(target)</code>: remove <code>target</code></li>
+</ul>
+<p>When you want to push a single operation, you can pass the return value of the corresponding operation directly to <code>turbo.push()</code>, as in the example above. If you would like to send several updates in different parts of the page, you can also pass a list of several operations, and turbo.js will apply all the updates for you.</p>
+<p>In this application we want to replace the old version of the CPU metrics with an updated version, so the most appropriate operation is <code>turbo.replace()</code>. The append and prepend options are very useful when the page update needs to add information, without removing any of the existing contents. The update operation is similar to replace, but only the contents of the target element are replaced, leaving the element itself alone. Finally, the remove operation is useful to delete a part of the page.</p>
+<p>In all these operations the <code>content</code> argument is the HTML fragment that needs to be updated in the page, given as a string. When working with Flask this is easy to generate, you just need to have a template that renders only this section of the page. In this application we already have the CPU metrics in a separate template because we needed to include it in two different pages, so all we need to do to generate the HTML fragment is to render this template directly in a <code>render_template()</code> call.</p>
+<p>The <code>target</code> argument accepted for these operations is the <code>id</code> of the target element in the page that receives the update. If you review the <em>loadavg.html</em> template you will notice that the top-level <code>&lt;div&gt;</code> in this template has <code>id="load"</code>.</p>
+<p>After you make the updates to the application, restart the Flask server and refresh the page on your browser. You should now see the CPU load numbers update at 5 second intervals. It was easy, right?</p>
+<p>The <code>turbo.push()</code> method has an optional argument called <code>to</code>, that can be used to specify which client(s) should receive the update. in this application this argument was not included because the update needs to go to all connected clients. If you are interested in sending updates to a subset of the connected clients the <code>to</code> argument, along with the <code>@turbo.user_id</code> decorator will come in handy.</p>
+<h2>Great, But How Does This Work?</h2>
+<p>You may be curious to know how does the <code>turbo.push()</code> method do its magic.</p>
+<p>One of the things that the <code>{{ turbo() }}</code> call added in the base template does is open a <a href="https://en.wikipedia.org/wiki/WebSocket">WebSocket</a> connection with the server. This connection is transparent to the application, as the Turbo-Flask extension manages it for you.</p>
+<p>A WebSocket connection is bi-directional, so the server can send data to the client without the client having to ask for it. The <code>turbo.push()</code> method takes advantage of this WebSocket connection to submit your page updates. The turbo.js library is listening on this connection and whenever data is received from the server it executes the operations included in the stream.</p>
+<h2>Deployment Considerations</h2>
+<p>Turbo-Flask tries to make the set up and use of the WebSocket endpoint completely transparent to your application. At least during development, you should not need to worry about this, as the extension takes care of integrating WebSocket support with the Flask development web server.</p>
+<p>If you intend to deploy a Turbo-Flask application to production you will need to decide on a deployment strategy that is compatible with WebSocket. There are 5 different production-ready configurations that are supported:</p>
+<ul>
+<li>Gunicorn with the threaded worker</li>
+<li>Gunicorn with the eventlet worker</li>
+<li>Gunicorn with the gevent worker</li>
+<li>The eventlet WSGI web server with monkey patching</li>
+<li>The gevent WSGI web server with monkey patching</li>
+</ul>
+<p>To learn more about these options, consult the deployment documentation for the <a href="https://github.com/miguelgrinberg/flask-sock">Flask-Sock</a> package, used by Turbo-Flask to implement the WebSocket route.</p>
+<h2>Conclusion</h2>
+<p>I hope this tutorial gave you a good overview of Turbo-Flask and turbo.js, and how to use them to trigger dynamic updates to your Flask web pages.</p>
+<p>As mentioned a few times throughout the article, turbo.js is composed of a collection of utilities that speed up navigation, form submissions and updates to web pages rendered in the server, so I encourage you to read the <a href="https://turbo.hotwire.dev/handbook/introduction">turbo.js documentation</a> to learn about how to take advantage of the remaining parts of this library.</p></div>
+
+<div class="patreon_footer">
+    <p>Hello, and thank you for visiting my blog! If you enjoyed this article, please consider supporting my work on this blog on <a href="https://patreon.com/miguelgrinberg">Patreon</a>!</p>
+    <center><p><a href="https://patreon.com/miguelgrinberg" alt="Become a Patron!" title="Become a Patron!"><img src="./page2_files/patreon-button.png"></a></p></center>
+</div>
+
+<div class="social-bar">
+    <table>
+        <tbody><tr>
+            <td><div class="social-box" style="padding-top: 8px;"><iframe id="twitter-widget-1" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" class="twitter-share-button twitter-share-button-rendered twitter-tweet-button" style="position: static; visibility: visible; width: 73px; height: 20px;" title="Twitter Tweet Button" src="./page2_files/tweet_button.a53eecb4584348a2ad32ec2ae21f6eae.en(1).html" data-url="http://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask"></iframe></div></td>
+            <td><div class="social-box" style="padding-left: 6px;"><div class="fb-like fb_iframe_widget" data-href="http://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask" data-send="false" data-layout="button" data-width="450" data-show-faces="false" data-font="verdana" fb-xfbml-state="rendered" fb-iframe-plugin-query="app_id=&amp;container_width=0&amp;font=verdana&amp;href=http%3A%2F%2Fblog.miguelgrinberg.com%2Fpost%2Fdynamically-update-your-flask-web-pages-using-turbo-flask&amp;layout=button&amp;locale=en_US&amp;sdk=joey&amp;send=false&amp;show_faces=false&amp;width=450"><span style="vertical-align: bottom; width: 60px; height: 20px;"><iframe name="f251107f16a1ebc" width="450px" height="1000px" data-testid="fb:like Facebook Social Plugin" title="fb:like Facebook Social Plugin" frameborder="0" allowtransparency="true" allowfullscreen="true" scrolling="no" allow="encrypted-media" src="./page2_files/like(1).html" style="border: none; visibility: visible; width: 60px; height: 20px;" class=""></iframe></span></div></div></td>
+            <td><div class="social-box" style="padding-top: 8px;"><div id="___plusone_1" style="position: absolute; width: 450px; left: -10000px;"><iframe ng-non-bindable="" frameborder="0" hspace="0" marginheight="0" marginwidth="0" scrolling="no" style="position:absolute;top:-10000px;width:450px;margin:0px;border-style:none" tabindex="0" vspace="0" width="100%" id="I1_1634833828664" name="I1_1634833828664" src="./page2_files/fastbutton(1).html" data-gapiattached="true"></iframe></div><div class="g-plusone" data-size="medium" data-annotation="none" data-href="http://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask" data-gapiscan="true" data-onload="true" data-gapistub="true"></div></div></td>
+            <td><div class="social-box" style="padding-top: 8px;"><span class="IN-widget" data-lnkd-debug="&lt;script type=&quot;IN/Share+init&quot; data-url=&quot;http://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask&quot;&gt;&lt;/script&gt;" style="display: inline-block; line-height: 1; vertical-align: bottom; padding: 0px; margin: 0px; text-indent: 0px; text-align: center;"><span style="padding: 0px !important; margin: 0px !important; text-indent: 0px !important; display: inline-block !important; vertical-align: bottom !important; font-size: 1px !important;"><button class="IN-382c6ac2-d5f7-4384-999f-f0b4d9591876-1G9ISYhSF8XoOmdcl0yKDu"><xdoor-icon aria-hidden="true"><svg viewBox="0 0 24 24" width="24px" height="24px" x="0" y="0" preserveAspectRatio="xMinYMin meet">
+      <g style="fill: currentColor">
+        <rect x="-0.003" style="fill:none;" width="24" height="24"></rect>
+        <path style="" d="M20,2h-16c-1.1,0-2,0.9-2,2v16c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2zM8,19h-3v-9h3V19zM6.5,8.8C5.5,8.8,4.7,8,4.7,7s0.8-1.8,1.8-1.8S8.3,6,8.3,7S7.5,8.8,6.5,8.8zM19,19h-3v-4c0-1.4-0.6-2-1.5-2c-1.1,0-1.5,0.8-1.5,2.2V19h-3v-9h2.9v1.1c0.5-0.7,1.4-1.3,2.6-1.3c2.3,0,3.5,1.1,3.5,3.7V19z"></path>
+      </g>
+    </svg></xdoor-icon>Share</button></span></span></div></td>
+        </tr>
+    </tbody></table>
+</div>
+
+
+<h4 style="text-align: right"><a name="comments"></a>31 comments</h4>
+
+
+
+<div class="comment">
+    <ul>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/fbde35d01a7dd6716f105a15f13027bf"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#1</span> <span class="label label-primary">Emmanuel</span> said
+        
+        <span class="" data-timestamp="2021-05-19T12:25:42Z" data-format="fromNow(0)" data-refresh="0">5 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>Thanks a lot for dedicating your time to helping the flask community.<font></font>
+I really love the idea behind turbo flask.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/48c1b27b4b504b7d2355e11adcac3acc"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#2</span> <span class="label label-primary">Emil Eliasson</span> said
+        
+        <span class="" data-timestamp="2021-05-27T12:45:14Z" data-format="fromNow(0)" data-refresh="0">5 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>Hi Miguel, thanks for posting this. Have you tried running this in different browsers? Your load-example runs perfectly fine on Chrome and Edge, but when I load the same page using Firefox (all addons disabled, I also tried private mode), I don't get the loadavg to update every five seconds. <font></font>
+Firefox console gives this message: "Firefox can’t establish a connection to the server at ws://x.x.x.x:5000/turbo-stream."</p>
+<p>With Firefox, the flask application also gives  this 400-message for the /turbo-stream URL in the flask server output: "x.x.x.x - - [27/May/2021 14:38:35] "GET /turbo-stream HTTP/1.1" 400 -"</p>
+<p>The 400-message does not show up if I load the page in Chrome or Edge. Just wanted to know your thoughts on why this might be happening.</p>
+<p>Once again, thanks for sharing this cool project!</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/729e26a2a2c7ff24a71958d4aa4e5f35.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#3</span> <span class="label label-danger">Miguel Grinberg</span> said
+        
+        <span class="" data-timestamp="2021-05-27T18:31:32Z" data-format="fromNow(0)" data-refresh="0">5 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Emil: there is currently a bug in Werkzeug that causes this. Once Werkzeug 2.0.2 is released Firefox will work the same as other browsers. You can install the main branch of Werkzeug if you need the fix right away.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/2ba18ea9961dfc9c9f112f36c16be60a.png"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#4</span> <span class="label label-primary">Rafael Gonçalves</span> said
+        
+        <span class="" data-timestamp="2021-07-06T14:35:12Z" data-format="fromNow(0)" data-refresh="0">4 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>Hi Miguel, </p>
+<p>Thanks for sharing your knowlegment!</p>
+<p>I have a problem to run flask_turbo on my  app:</p>
+<pre><code>from turbo_flask import Turbo
+</code></pre>
+<p>ModuleNotFoundError: No module named 'turbo_flask' </p>
+<p>But i has installed it:<font></font>
+Requirement already satisfied: turbo_flask in ./venv_bridge_aws/lib/python3.9/site-packages (0.6.0)</p>
+<p>You know what i'm doing wrong?</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/729e26a2a2c7ff24a71958d4aa4e5f35.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#5</span> <span class="label label-danger">Miguel Grinberg</span> said
+        
+        <span class="" data-timestamp="2021-07-06T22:18:50Z" data-format="fromNow(0)" data-refresh="0">4 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Rafael: I don't. Something in your virtual environment must be broken. I would recreate the virtual environment from scratch.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/db114da7f6890d130af85973429503ad"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#6</span> <span class="label label-primary">Niko Konzack</span> said
+        
+        <span class="" data-timestamp="2021-07-12T12:37:13Z" data-format="fromNow(0)" data-refresh="0">3 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>Hi Miguel, thanks for your post. It has already helped me a lot. </p>
+<p>However, I cannot find a way to execute Javascript every time I reload a certain &lt;div&gt;.<font></font>
+Do you know how I could do that?</p>
+<p>Thank you in advance for your answer!</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/729e26a2a2c7ff24a71958d4aa4e5f35.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#7</span> <span class="label label-danger">Miguel Grinberg</span> said
+        
+        <span class="" data-timestamp="2021-07-12T22:16:45Z" data-format="fromNow(0)" data-refresh="0">3 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Niko: Have you asked in a Hotwired Turbo forum? That's really the best place, I think they're planning to allow JS to be included in stream updates.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/5f25c04896032e208970deabf296ced9.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#8</span> <span class="label label-primary">Zubin Madon</span> said
+        
+        <span class="" data-timestamp="2021-07-30T13:58:46Z" data-format="fromNow(0)" data-refresh="0">3 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>Can you please explain how this method is better than simply refreshing from HTML/JS meta code like this: <a href="https://www.programmersought.com/article/62861232605/" rel="nofollow">https://www.programmersought.com/article/62861232605/</a></p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/729e26a2a2c7ff24a71958d4aa4e5f35.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#9</span> <span class="label label-danger">Miguel Grinberg</span> said
+        
+        <span class="" data-timestamp="2021-07-30T16:14:13Z" data-format="fromNow(0)" data-refresh="0">3 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Zubin: this library is not intended to auto-refresh your page. If that's what you want, then use the meta-refresh tag.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/01d1aafde815d37fd40f8e38b4aa9ba6.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#10</span> <span class="label label-primary">Malik</span> said
+        
+        <span class="" data-timestamp="2021-07-30T17:11:55Z" data-format="fromNow(0)" data-refresh="0">3 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>Hi Miguel! Thank you for taking your time! I'm having trouble to get turbo to work because of the Talisman CSP. I wonder if there's any workaround?</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/729e26a2a2c7ff24a71958d4aa4e5f35.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#11</span> <span class="label label-danger">Miguel Grinberg</span> said
+        
+        <span class="" data-timestamp="2021-07-31T10:14:50Z" data-format="fromNow(0)" data-refresh="0">3 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Malik: I don't really know which change added by Talisman affects Turbo-Flask. I suppose the workaround is to disable whatever prevents Turbo-Flask from running? You have to find out what it is specifically, and then decide if you are comfortable disabling it. Without knowing what is it I cannot give you any more specific advice.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/5762190516d9aa261bc986edd5104c0c"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#12</span> <span class="label label-primary">Ling</span> said
+        
+        <span class="" data-timestamp="2021-08-19T14:55:22Z" data-format="fromNow(0)" data-refresh="0">2 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>Hi Miguel! Trying to use flask-restx with Turbo now, when using <font></font>
+make_response(render_template('index.html'), 200, headers) with header text/html. Js console alert "Failed to load module script: Expected a JavaScript module script but the server responded with a MIME type of "text/html". Strict MIME type checking is enforced for module scripts per HTML spec."<font></font>
+Any idea?</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/729e26a2a2c7ff24a71958d4aa4e5f35.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#13</span> <span class="label label-danger">Miguel Grinberg</span> said
+        
+        <span class="" data-timestamp="2021-08-19T22:40:02Z" data-format="fromNow(0)" data-refresh="0">2 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Ling: Can't tell for sure, but it seems you are invoking an endpoint that returns HTML from a <code>&lt;script&gt;</code> element in your page.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/5762190516d9aa261bc986edd5104c0c"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#14</span> <span class="label label-primary">Ling</span> said
+        
+        <span class="" data-timestamp="2021-08-20T15:50:28Z" data-format="fromNow(0)" data-refresh="0">2 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Miguel I have tried to use pure javascript to connect instead of module. <font></font>
+&lt;script type="text/javascript" src="<a href="https://unpkg.com/@hotwired/turbo@7.0.0-beta.5/dist/turbo.es5-umd.js" rel="nofollow">https://unpkg.com/@hotwired/turbo@7.0.0-beta.5/dist/turbo.es5-umd.js</a>"&gt;&lt;/script&gt;<font></font>
+    &lt;script type="text/javascript"&gt;</p>
+<pre><code>  if (window["WebSocket"] &amp;&amp; window["Turbo"]) {<font></font>
+    Turbo.connectStreamSource(new WebSocket(`ws${location.protocol.substring(4)}//${location.host}/turbo-stream`))<font></font>
+  } else {<font></font>
+    console.warn("Turbo Streams not available");<font></font>
+  }<font></font>
+&lt;/script&gt;<font></font>
+</code></pre>
+<p>It passed the error I mentioned yesterday</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/729e26a2a2c7ff24a71958d4aa4e5f35.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#15</span> <span class="label label-danger">Miguel Grinberg</span> said
+        
+        <span class="" data-timestamp="2021-08-21T14:03:04Z" data-format="fromNow(0)" data-refresh="0">2 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Ling: with turbo-flask you do not need to make a WebSocket connection, this is all handled by the extension when you add <code>{{ turbo() }}</code> to your Jinja template. Aside from that, the error means what I said before, the route appears to be returning HTML instead of WebSocket. I suggest you start from one of the example apps in the Turbo-Flask repository and confirm that everything works, then start making changes according to your needs.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/5762190516d9aa261bc986edd5104c0c"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#16</span> <span class="label label-primary">Ling</span> said
+        
+        <span class="" data-timestamp="2021-08-23T14:01:00Z" data-format="fromNow(0)" data-refresh="0">2 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Miguel I guess CDN website for turbo.js is blocked by my company's network. So it returns error html page:) <font></font>
+It would be great if we can define the javascript source module somewhere.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/729e26a2a2c7ff24a71958d4aa4e5f35.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#17</span> <span class="label label-danger">Miguel Grinberg</span> said
+        
+        <span class="" data-timestamp="2021-08-23T22:24:59Z" data-format="fromNow(0)" data-refresh="0">2 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Ling: See the <code>url</code> argument to the <code>turbo()</code> function: <a href="https://turbo-flask.readthedocs.io/en/latest/api.html#turbo_flask.Turbo.turbo" rel="nofollow">https://turbo-flask.readthedocs.io/en/latest/api.html#turbo_flask.Turbo.turbo</a>.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/436e6ffee13522a2979fbe18583f1845.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#18</span> <span class="label label-primary">Kerem</span> said
+        
+        <span class="" data-timestamp="2021-09-03T07:49:40Z" data-format="fromNow(0)" data-refresh="0">2 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>Hello Miguel thanks for this blog post.<font></font>
+First thing that popped into my mind was using this for getting user notifications. I wonder if it'd be wise to use Turbo-Flask instead of sending requests for every ten seconds like you implemented in Mega Flask tutorial.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/729e26a2a2c7ff24a71958d4aa4e5f35.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#19</span> <span class="label label-danger">Miguel Grinberg</span> said
+        
+        <span class="" data-timestamp="2021-09-03T08:31:13Z" data-format="fromNow(0)" data-refresh="0">2 months ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Kerem: Yes, it's a valid approach. Though keep in mind that this sets up a WebSocket connection for each client, so it's not free. Instead of the constant polling you'll be maintaining a permanent connection for each client.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/05673ca6bdd838fdfe48b78965899cc2.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#20</span> <span class="label label-primary">Andy</span> said
+        
+        <span class="" data-timestamp="2021-09-06T10:43:41Z" data-format="fromNow(0)" data-refresh="0">a month ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>Hi Miguel, thanks for this blog, and all your work. I'm trying to create a page with a form, which executes some code based on form data, and the progress then displayed underneath the form. turbo-flask seems to fit this requirement well, but I am a bit stuck. What is the logic when using turbo-flask to update a page multiple times and not just triggered by the first POST. Once I do the first "return turbo.stream..." how do I then repeat that after further code has executed? I've looked through your 'load' and 'todo' examples but unable to work it out. I'm still fairly green with python so I might be missing some simple logic. Thanks.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/05673ca6bdd838fdfe48b78965899cc2.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#21</span> <span class="label label-primary">Andy</span> said
+        
+        <span class="" data-timestamp="2021-09-06T12:31:50Z" data-format="fromNow(0)" data-refresh="0">a month ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>Hi Miguel, I think I have worked it out now. Rather than use turbo.stream, I am using turbo.push. Although I don't fully understand the app.app_context() line, it does now do what I expect. Many thanks again.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/729e26a2a2c7ff24a71958d4aa4e5f35.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#22</span> <span class="label label-danger">Miguel Grinberg</span> said
+        
+        <span class="" data-timestamp="2021-09-06T22:38:00Z" data-format="fromNow(0)" data-refresh="0">a month ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Andy: your solution is the correct one. When you want to send updates to a page initiated by the server you have to use turbo.push().</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/18a7554abf6a5e30a20cde13e3cfbd12.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#23</span> <span class="label label-primary">Jean-Francois Theoret</span> said
+        
+        <span class="" data-timestamp="2021-09-26T14:40:26Z" data-format="fromNow(0)" data-refresh="0">25 days ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>Thanks for sharing this code! Finally a python solution for async!</p>
+<p>I am running into a problem however that I hope you may be to help me with. I am using blueprints to serve some paths. When I try to push and and render to my webpage in the update thread:</p>
+<p>turbo.push(turbo.replace(render_template('monitor.html'), 'alive'))</p>
+<p>I get:</p>
+<p>RuntimeError: Application was not able to create a URL adapter for request independent URL generation. You might be able to fix this by setting the SERVER_NAME config variable.</p>
+<p>Would you have an idea why? Thanks</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/729e26a2a2c7ff24a71958d4aa4e5f35.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#24</span> <span class="label label-danger">Miguel Grinberg</span> said
+        
+        <span class="" data-timestamp="2021-09-26T18:31:28Z" data-format="fromNow(0)" data-refresh="0">25 days ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Jean-Francois: The problem is that you are using the <code>url_for()</code> function, probably somewhere in your HTML template. This normal usage of this function relies on having a request context, which your background thread does not have. You can follow the advice in the error message and set <code>SERVER_NAME</code> in the configuration so that <code>url_for</code> knows about your server without having to look information up in the request context.</p></pre>
+    </div>
+</div>
+        </li>
+        
+        <li>
+          
+          
+          <div class="comment-thumbnail"><img src="./page2_files/18a7554abf6a5e30a20cde13e3cfbd12.jpeg"></div>
+<div class="comment-body">
+    
+    <p>
+        
+        <span class="label label-default">#25</span> <span class="label label-primary">Jean-Francois Theoret</span> said
+        
+        <span class="" data-timestamp="2021-09-27T18:25:11Z" data-format="fromNow(0)" data-refresh="0">24 days ago</span>
+    </p>
+    <div style="overflow: auto;">
+        <pre><p>@Miguel: Thanks a mil! Removing the url_for solved the issue! </p>
+<p>Now I just need to undestand context so that I can fix my flash messages which arent working anymore :)</p></pre>
+    </div>
+</div>
+        </li>
+        
+    </ul>
+</div>
+
+<div class="page">
+<ul class="pager">
+  <li class="previous disabled">
+    <a href="https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask#">««</a>
+  </li>
+  <li class="previous disabled">
+    <a href="https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask#">«</a>
+  </li>
+  <li class="next">
+    <a href="https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask/page/0#comments">»»</a>
+  </li>
+  <li class="next">
+    <a href="https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask/page/2#comments">»</a>
+  </li>
+</ul>
+</div>
+
+<h3><a name="commentform"></a>Leave a Comment</h3>
+
+
+
+
+
+
+<form action="https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask#commentform" method="post" class="form" role="form">
+  <input id="url" name="url" type="hidden" value="">
+<input id="csrf_token" name="csrf_token" type="hidden" value="ImYyMDE2MTMzYjJlNzU3ZmE2YTY2N2Y5NjNhN2FlYWUwYzUxNGFlYzUi.FFMnIw.s2KskGmLT-0wuNBU6ITEfFOThtg">
+  
+    
+
+
+
+
+
+
+<div class="form-group  required"><label class="control-label" for="name">Name</label>
+        
+          <input class="form-control" id="name" name="name" required="" type="text" value="">
+        
+  </div>
+
+
+    
+    
+
+
+
+
+
+
+<div class="form-group  required"><label class="control-label" for="email">Email</label>
+        
+          <input class="form-control" id="email" name="email" required="" type="text" value="">
+        
+  </div>
+
+
+    
+
+
+
+
+
+
+<div class="form-group  required"><label class="control-label" for="comment">Comment</label>
+        
+          <textarea class="form-control" id="comment" name="comment" required=""></textarea>
+        
+  </div>
+
+
+    
+
+
+
+
+<div class="form-group "><label class="control-label" for="captcha">Captcha</label>
+        
+          
+<script src="./page2_files/api.js" async="" defer=""></script>
+<div class="g-recaptcha" data-sitekey="6Ld5Zs4SAAAAAOY0DOi4r18bgHlEaz41qAoRf__S"><div style="width: 304px; height: 78px;"><div><iframe title="reCAPTCHA" src="./page2_files/anchor.html" width="304" height="78" role="presentation" name="a-g6a1evl6yufc" frameborder="0" scrolling="no" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox"></iframe></div><textarea id="g-recaptcha-response" name="g-recaptcha-response" class="g-recaptcha-response" style="width: 250px; height: 40px; border: 1px solid rgb(193, 193, 193); margin: 10px 25px; padding: 0px; resize: none; display: none;"></textarea></div><iframe style="display: none;" src="./page2_files/saved_resource(1).html"></iframe></div>
+
+        
+  </div>
+
+
+    
+
+
+
+
+
+  
+
+  
+  
+
+
+    <input class="btn btn-default" id="submit" name="submit" type="submit" value="Submit">
+  
+
+
+
+
+    
+
+</form>
+
+
+</div>
+
+                </div>
+            </div>
+            <div class="col-md-4 sidebar-bg">
+                <div id="sidebar">
+                    
+
+                    
+                    
+                    
+                    <h1>The New Flask Mega-Tutorial</h1>
+                    
+                    
+                    <p>My <a href="https://www.kickstarter.com/projects/1124925856/the-new-and-improved-flask-mega-tutorial">Kickstarter</a> project was a big success! Thank you to everyone who contributed to it!</p>
+                    <p>If you would you like to support my work on this tutorial and on this blog and as a reward have access to the complete tutorial nicely structured as an ebook and a set of videos, you can now order it from my <a href="https://courses.miguelgrinberg.com/p/flask-mega-tutorial">Courses</a> site.</p>
+                    <center><p><a href="https://courses.miguelgrinberg.com/p/flask-mega-tutorial"><img src="./page2_files/mega-tutorial-small.png"></a></p></center>
+                    
+
+                    
+
+                    <h1>About Miguel</h1>
+                    <img style="float: right; margin: 0px 8px 8px 0px; padding: 4px; border: 1px solid #ccc;" src="./page2_files/miguel.jpg">
+                    <p>Welcome to my blog!</p>
+                    <p>I'm a software engineer, photographer and filmmaker, currently living in Drogheda, Ireland.</p>
+                    
+                    <p>You can also find me on <a href="https://www.facebook.com/miguelgrinbergblog">Facebook</a>, <a href="https://plus.google.com/u/0/117786742456929977820">Google+</a>, <a href="http://www.linkedin.com/in/miguelgrinberg">LinkedIn</a>, <a href="https://github.com/miguelgrinberg">Github</a> and <a href="https://twitter.com/miguelgrinberg">Twitter</a>.</p>
+                    <p>Thank you for visiting!</p>
+
+                    
+                    <h1>Categories</h1>
+<ul>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/AWS/feed">
+			<img src="./page2_files/rss-small.png" title="AWS RSS Feed" label="AWS RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/AWS">AWS</a></span> (1)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Arduino/feed">
+			<img src="./page2_files/rss-small.png" title="Arduino RSS Feed" label="Arduino RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Arduino">Arduino</a></span> (7)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Authentication/feed">
+			<img src="./page2_files/rss-small.png" title="Authentication RSS Feed" label="Authentication RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Authentication">Authentication</a></span> (6)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Blog/feed">
+			<img src="./page2_files/rss-small.png" title="Blog RSS Feed" label="Blog RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Blog">Blog</a></span> (1)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/C++/feed">
+			<img src="./page2_files/rss-small.png" title="C++ RSS Feed" label="C++ RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/C++">C++</a></span> (5)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Cloud/feed">
+			<img src="./page2_files/rss-small.png" title="Cloud RSS Feed" label="Cloud RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Cloud">Cloud</a></span> (8)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Database/feed">
+			<img src="./page2_files/rss-small.png" title="Database RSS Feed" label="Database RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Database">Database</a></span> (16)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Docker/feed">
+			<img src="./page2_files/rss-small.png" title="Docker RSS Feed" label="Docker RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Docker">Docker</a></span> (2)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Filmmaking/feed">
+			<img src="./page2_files/rss-small.png" title="Filmmaking RSS Feed" label="Filmmaking RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Filmmaking">Filmmaking</a></span> (6)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Flask/feed">
+			<img src="./page2_files/rss-small.png" title="Flask RSS Feed" label="Flask RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Flask">Flask</a></span> (96)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Games/feed">
+			<img src="./page2_files/rss-small.png" title="Games RSS Feed" label="Games RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Games">Games</a></span> (1)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/HTML5/feed">
+			<img src="./page2_files/rss-small.png" title="HTML5 RSS Feed" label="HTML5 RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/HTML5">HTML5</a></span> (1)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Heroku/feed">
+			<img src="./page2_files/rss-small.png" title="Heroku RSS Feed" label="Heroku RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Heroku">Heroku</a></span> (1)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/IoT/feed">
+			<img src="./page2_files/rss-small.png" title="IoT RSS Feed" label="IoT RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/IoT">IoT</a></span> (8)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/JavaScript/feed">
+			<img src="./page2_files/rss-small.png" title="JavaScript RSS Feed" label="JavaScript RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/JavaScript">JavaScript</a></span> (16)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/MicroPython/feed">
+			<img src="./page2_files/rss-small.png" title="MicroPython RSS Feed" label="MicroPython RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/MicroPython">MicroPython</a></span> (8)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Microservices/feed">
+			<img src="./page2_files/rss-small.png" title="Microservices RSS Feed" label="Microservices RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Microservices">Microservices</a></span> (2)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Movie%20Reviews/feed">
+			<img src="./page2_files/rss-small.png" title="Movie Reviews RSS Feed" label="Movie Reviews RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Movie%20Reviews">Movie Reviews</a></span> (5)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/OpenStack/feed">
+			<img src="./page2_files/rss-small.png" title="OpenStack RSS Feed" label="OpenStack RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/OpenStack">OpenStack</a></span> (1)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Personal/feed">
+			<img src="./page2_files/rss-small.png" title="Personal RSS Feed" label="Personal RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Personal">Personal</a></span> (3)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Photography/feed">
+			<img src="./page2_files/rss-small.png" title="Photography RSS Feed" label="Photography RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Photography">Photography</a></span> (7)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Product%20Reviews/feed">
+			<img src="./page2_files/rss-small.png" title="Product Reviews RSS Feed" label="Product Reviews RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Product%20Reviews">Product Reviews</a></span> (2)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Programming/feed">
+			<img src="./page2_files/rss-small.png" title="Programming RSS Feed" label="Programming RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Programming">Programming</a></span> (138)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Project%20Management/feed">
+			<img src="./page2_files/rss-small.png" title="Project Management RSS Feed" label="Project Management RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Project%20Management">Project Management</a></span> (1)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Python/feed">
+			<img src="./page2_files/rss-small.png" title="Python RSS Feed" label="Python RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Python">Python</a></span> (131)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/REST/feed">
+			<img src="./page2_files/rss-small.png" title="REST RSS Feed" label="REST RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/REST">REST</a></span> (6)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Rackspace/feed">
+			<img src="./page2_files/rss-small.png" title="Rackspace RSS Feed" label="Rackspace RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Rackspace">Rackspace</a></span> (1)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Raspberry%20Pi/feed">
+			<img src="./page2_files/rss-small.png" title="Raspberry Pi RSS Feed" label="Raspberry Pi RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Raspberry%20Pi">Raspberry Pi</a></span> (7)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/React/feed">
+			<img src="./page2_files/rss-small.png" title="React RSS Feed" label="React RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/React">React</a></span> (5)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Robotics/feed">
+			<img src="./page2_files/rss-small.png" title="Robotics RSS Feed" label="Robotics RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Robotics">Robotics</a></span> (6)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Security/feed">
+			<img src="./page2_files/rss-small.png" title="Security RSS Feed" label="Security RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Security">Security</a></span> (10)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Video/feed">
+			<img src="./page2_files/rss-small.png" title="Video RSS Feed" label="Video RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Video">Video</a></span> (22)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Webcast/feed">
+			<img src="./page2_files/rss-small.png" title="Webcast RSS Feed" label="Webcast RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Webcast">Webcast</a></span> (3)
+	</li>
+
+	<li>
+		<a href="https://blog.miguelgrinberg.com/category/Windows/feed">
+			<img src="./page2_files/rss-small.png" title="Windows RSS Feed" label="Windows RSS Feed">
+		</a>
+		<span class="label label-primary"><a href="https://blog.miguelgrinberg.com/category/Windows">Windows</a></span> (1)
+	</li>
+
+</ul>
+                    
+                </div>
+            </div>
+        </div>
+        <div id="footer">
+            
+            <p>© 2012-<script type="text/javascript">document.write(new Date().getFullYear());</script>2021 by Miguel Grinberg. All rights reserved. <a href="mailto:webmaster%20_at_%20miguelgrinberg%20_dot_%20com">Questions?</a></p>
+        </div>
+    </div>
+
+
+    
+    
+    <script src="./page2_files/jquery.min.js"></script>
+    <script src="./page2_files/bootstrap.min.js"></script>
+	<script type="text/javascript" src="./page2_files/jquery.colorbox-min.js"></script>
+    <script type="text/javascript" src="./page2_files/prettify.js"></script>
+    <script src="./page2_files/moment-with-langs.min.js"></script>
+<script>
+function flask_moment_render(elem) {
+    $(elem).text(eval('moment("' + $(elem).data('timestamp') + '").' + $(elem).data('format') + ';'));
+    $(elem).removeClass('flask-moment');
+}
+function flask_moment_render_all() {
+    $('.flask-moment').each(function() {
+        flask_moment_render(this);
+        if ($(this).data('refresh')) {
+            (function(elem, interval) { setInterval(function() { flask_moment_render(elem) }, interval); })(this, $(this).data('refresh'));
+        }
+    })
+}
+$(document).ready(function() {
+    flask_moment_render_all();
+});
+</script>
+    
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-4777284-15']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+    
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $(".gallery").colorbox({rel:".gallery",maxWidth:"95%",maxHeight:"95%",scalePhotos:true});
+            // add prettyprint class to all <pre><code></code></pre> blocks
+            var prettify = false;
+            $("div.post_body pre code").parent().each(function() {
+                $(this).addClass('prettyprint');
+                prettify = true;
+            });
+            prettyPrint();
+        });
+    </script>
+
+
+  
+
+<div id="cboxOverlay" style="display: none;"></div><div id="colorbox" class="" role="dialog" tabindex="-1" style="display: none;"><div id="cboxWrapper"><div><div id="cboxTopLeft" style="float: left;"></div><div id="cboxTopCenter" style="float: left;"></div><div id="cboxTopRight" style="float: left;"></div></div><div style="clear: left;"><div id="cboxMiddleLeft" style="float: left;"></div><div id="cboxContent" style="float: left;"><div id="cboxTitle" style="float: left;"></div><div id="cboxCurrent" style="float: left;"></div><button type="button" id="cboxPrevious"></button><button type="button" id="cboxNext"></button><button id="cboxSlideshow"></button><div id="cboxLoadingOverlay" style="float: left;"></div><div id="cboxLoadingGraphic" style="float: left;"></div></div><div id="cboxMiddleRight" style="float: left;"></div></div><div style="clear: left;"><div id="cboxBottomLeft" style="float: left;"></div><div id="cboxBottomCenter" style="float: left;"></div><div id="cboxBottomRight" style="float: left;"></div></div></div><div style="position: absolute; width: 9999px; visibility: hidden; display: none; max-width: none;"></div></div><iframe scrolling="no" frameborder="0" allowtransparency="true" src="./page2_files/widget_iframe.a53eecb4584348a2ad32ec2ae21f6eae.html" title="Twitter settings iframe" style="display: none;"></iframe><iframe name="oauth2relay383981292" id="oauth2relay383981292" src="./page2_files/postmessageRelay.html" tabindex="-1" aria-hidden="true" style="width: 1px; height: 1px; position: absolute; top: -100px;"></iframe><div style="background-color: rgb(255, 255, 255); border: 1px solid rgb(204, 204, 204); box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 3px; position: absolute; transition: visibility 0s linear 0.3s, opacity 0.3s linear 0s; opacity: 0; visibility: hidden; z-index: 2000000000; left: 0px; top: -10000px;"><div style="width: 100%; height: 100%; position: fixed; top: 0px; left: 0px; z-index: 2000000000; background-color: rgb(255, 255, 255); opacity: 0.05;"></div><div class="g-recaptcha-bubble-arrow" style="border: 11px solid transparent; width: 0px; height: 0px; position: absolute; pointer-events: none; margin-top: -11px; z-index: 2000000000;"></div><div class="g-recaptcha-bubble-arrow" style="border: 10px solid transparent; width: 0px; height: 0px; position: absolute; pointer-events: none; margin-top: -10px; z-index: 2000000000;"></div><div style="z-index: 2000000000; position: relative;"><iframe title="Desafío de reCAPTCHA" src="./page2_files/bframe.html" name="c-g6a1evl6yufc" frameborder="0" scrolling="no" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox" style="width: 100%; height: 100%;"></iframe></div></div><div id="goog-gt-tt" class="skiptranslate" dir="ltr"><div style="padding: 8px;"><div><div class="logo"><img src="./page2_files/translate_24dp.png" width="20" height="20" alt="Google Traductor de Google"></div></div></div><div class="top" style="padding: 8px; float: left; width: 100%;"><h1 class="title gray">Texto original</h1></div><div class="middle" style="padding: 8px;"><div class="original-text"></div></div><div class="bottom" style="padding: 8px;"><div class="activity-links"><span class="activity-link">Sugiere una traducción mejor</span><span class="activity-link"></span></div><div class="started-activity-container"><hr style="color: #CCC; background-color: #CCC; height: 1px; border: none;"><div class="activity-root"></div></div></div><div class="status-message" style="display: none;"></div></div><iframe id="rufous-sandbox" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;" title="Twitter analytics iframe" src="./page2_files/saved_resource(2).html"></iframe><div class="goog-te-spinner-pos"><div class="goog-te-spinner-animation"><svg xmlns="http://www.w3.org/2000/svg" class="goog-te-spinner" width="96px" height="96px" viewBox="0 0 66 66"><circle class="goog-te-spinner-path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle></svg></div></div></body><loom-container id="lo-engage-ext-container"><loom-shadow classname="resolved"></loom-shadow></loom-container></html>
