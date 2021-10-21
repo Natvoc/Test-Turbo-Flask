@@ -22,7 +22,7 @@ En su ambiente virtual instalar Flask 2 y Turbo Flask
 
 ### Estructura
 
-![alt text](estructura_del_proyecto.png "Titulo")
+![alt text](estructura_del_proyecto.png "Estructura del proyecto")
 
 
 
