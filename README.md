@@ -26,13 +26,16 @@ Al tratarse de un proyecto para pruebas la estructura es sencilla pero dejo la i
 ![alt text](estructura_del_proyecto.png "Estructura del proyecto")
 
 
-
-
 ### Templates
 Dentro de nuestra habitual carpeta Templates de Flask tenemos 3 archivos html, index, page2 y base. 
 
 Utilizamos base como una buena practica de Flask ya que las otras páginas repiten esta estructura.
 
+### Static
+
+También es una carpeta muy utilizada en Flask para almacenar las imagenes, archivos CSS y JS. 
+
+Aquí tenemos nuestro diseño personalizado con CSS
 
 ### aap.py
 Siguiendo el tutorial de Miguel vamos a crear una web que nos muestre las cargas del CPU en los últimos 1, 5 y 15 minutos, estos datos se actualizaran de manera automatica, la muestra de esta infomración de CPU está diseñada para servidores Linux, pero para continuar con el ejemplo se agrega un código que muestra numero de manera aleatoria si el sistema operativo no es Linux. 
