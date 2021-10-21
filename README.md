@@ -15,6 +15,7 @@ En su ambiente virtual instalar Flask 2 y Turbo Flask
 
 ```
 (venv) $ pip3 install flask turbo-flask
+
 ```
 
 ## Explicación
@@ -30,6 +31,6 @@ def inject_load():
     else:
         load = [int(random.random() * 100) / 100 for _ in range(3)]
     return{'load1': load[0], 'load5': load5[1], 'load15': load[2]}
-    
-´´´
+
+```
 
