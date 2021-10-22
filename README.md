@@ -58,5 +58,7 @@ def inject_load():
 
 ![alt text](imagen_de_proyecto.png "Imágen del proyecto")
 
+Al finalizar tenemos una aplicación totalmente funcional que nos brinda los datos casa 5 segundos sin necesidad de recargar la página.
 
+Para obtener más detalles del tutorial que seguí recuerde visitar el la publicación de [Miguel](https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask).y aprovecho para recomendar todas las publicaciónes de su blog.
 
