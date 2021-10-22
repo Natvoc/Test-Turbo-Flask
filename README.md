@@ -23,7 +23,7 @@ En su ambiente virtual instalar Flask 2 y Turbo Flask
 ### Estructura
 Al tratarse de un proyecto para pruebas la estructura es sencilla pero dejo la imagen como guía por si esta inciando con Flask.
 
-![alt text](estructura_del_proyecto.png "Estructura del proyecto")
+![alt text](estructura_de_proyecto.png "Estructura del proyecto")
 
 
 ### Templates
@@ -54,6 +54,9 @@ def inject_load():
 ```
 
 
+### Conclusión
+
+![alt text](imagen_de_proyecto.png "Imágen del proyecto")
 
 
 
