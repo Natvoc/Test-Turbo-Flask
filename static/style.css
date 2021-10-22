@@ -1,12 +1,24 @@
-.load{
-    float:right;
-    width: 300px;
-    border: 1px solid black;
-    margin-left: 10px;
-    margin-bottom: 10px;
-    padding: 10px;
-}
-.load th, .load td{
-    padding: 6px;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+body{
     text-align: center;
+    background-color: #27283f;
+    font-family: 'Poppins', sans-serif;
+}
+h1, h3{
+    color: #ffff;
+}
+.load{
+   margin-top: 2em;
+}
+table{
+    margin: 0 auto;
+}
+.load th{
+    font-size: 1.8em;
+    color: #9e5ca6;
+}
+.load td{
+    font-size: 1.6em;
+    color: #5b5fb3;
 }
