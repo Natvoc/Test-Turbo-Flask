@@ -7,7 +7,7 @@ Se puede obtener más información de Turbo Flask en el Github del [Proyecto](ht
 
 Importante destacar que Turbo Flask es un proyecto de [Miguel Grinberg](https://github.com/miguelgrinberg) intengrando la biblioteca [Turbo.js](https://github.com/hotwired/turbo) con Flask
 
-Para este ejemplo utilizo como guía el tutorial practico esctrito por Miguel en su [blog](https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask).
+Para este ejemplo utilizo como guía el tutorial práctico esctrito por Miguel en su [blog](https://blog.miguelgrinberg.com/post/dynamically-update-your-flask-web-pages-using-turbo-flask).
 
 ## Instalación
 
